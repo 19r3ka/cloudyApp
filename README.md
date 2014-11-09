@@ -1,9 +1,10 @@
 == README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Author: 19r3ka
 
-Things you may want to cover:
+Description: this tutorial app is a first attempt at better understanding git, ruby on rails, and cloud storage services such as Box, DropBox, and Google Drive.
+
+This is a work in progress!
 
 * Ruby version
 
