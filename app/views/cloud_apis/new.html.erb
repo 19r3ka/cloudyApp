@@ -1,0 +1,34 @@
+<div>
+	<h1>Add a New Cloud Service Provider</h1>
+	<p>
+		This is where cloud service providers (CSPs) submit api data for review and eventually integration into the cloudyApp
+	</p>
+</div>
+
+<div>
+	<%= form_for :cloud_api, url: cloud_apis_path do |f| %>
+		<p>
+			<%= f.label :auth_uri %>
+			<%= f.text_field :auth_uri %>
+		</p>
+		<p>
+			<%= f.label :auth_credential %>
+			<%= f.text_field :auth_credential %>
+		</p>
+		<p>
+			<%= f.label :base_uri %>
+			<%= f.text_field :base_uri %>
+		</p>
+		<p>
+			<%= f.label :file_path %>
+			<%= f.text_field :file_path %>
+		</p>
+		<p>
+			<%= f.label :folder_path %>
+			<%= f.text_field :folder_path %>
+		</p>
+		<p>
+			<%= f.submit %>
+		</p>
+	<% end %>	
+</div>

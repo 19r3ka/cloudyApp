@@ -1,8 +1,14 @@
 Rails.application.routes.draw do
 
 	root 'pages#home'
-	
 	get 'pages/home'
+
+	resources :cloud_apis
+
+
+
+
+	
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 

@@ -1,0 +1,2 @@
+module CloudApisHelper
+end
