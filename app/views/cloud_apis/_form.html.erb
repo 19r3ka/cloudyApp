@@ -1,0 +1,43 @@
+<%= form_for @cloud_api do |f| %>
+		<!-- Here we define a error box in case the new CSP is not safe -->
+		<% if @cloud_api.errors.any? %>
+			<div id="message_box" class="error" >
+				<h2><%= pluralize(@cloud_api.errors.count, "error") %> prevented your cloud API from being saved: </h2>
+				<ul>
+					<%= @cloud_api.errors.full_messages.each do |msg| %>
+						<li>
+							<p><%= msg %></p>
+						</li>
+					<% end %>
+				</ul>
+			</div>
+		<% end %>
+		
+		<p>
+			<%= f.label :name %>
+			<%= f.text_field :name %>
+		</p>
+		<p>
+			<%= f.label :auth_uri %>
+			<%= f.url_field :auth_uri %>
+		</p>
+		<p>
+			<%= f.label :auth_credential %>
+			<%= f.text_field :auth_credential %>
+		</p>
+		<p>
+			<%= f.label :base_uri %>
+			<%= f.url_field :base_uri %>
+		</p>
+		<p>
+			<%= f.label :file_path %>
+			<%= f.text_field :file_path %>
+		</p>
+		<p>
+			<%= f.label :folder_path %>
+			<%= f.text_field :folder_path %>
+		</p>
+		<p>
+			<%= f.submit %>
+		</p>
+	<% end %>

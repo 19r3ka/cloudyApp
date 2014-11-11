@@ -9,9 +9,11 @@
 		  <th>Base uri</th>
 		  <th>File path</th>
 		  <th>Folder path</th>
+		  <th></th>
+		  <th></th>
 		</tr>
 		
-		<%= @cloud_apis.each do |csp| %>
+		<% @cloud_apis.each do |csp| %>
 			<tr>
 				<td><%= csp.name %></td>
 				<td><%= csp.auth_uri %></td>
@@ -20,7 +22,10 @@
 				<td><%= csp.file_path %></td>
 				<td><%= csp.folder_path %></td>	
 				<span><!-- navigation links for CRUD actions -->
-					
+					<td><%= link_to 'Show', csp %></td>
+					<td><%= link_to 'Edit', edit_cloud_api_path(csp) %></td>
+					<td><%= link_to 'Destroy', cloud_api_path(csp), 
+					method: :delete, data: { confirm: 'Are you sure?' } %></td>
 				</span>	
 			</tr>
 		<% end %>

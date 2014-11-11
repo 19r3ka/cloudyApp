@@ -22,6 +22,24 @@ class CloudApisController < ApplicationController
 		end
 	end
 	
+	def edit
+		@cloud_api = CloudApi.find(params[:id])
+	end
+	
+	def update
+		@cloud_api = CloudApi.find(params[:id])
+		if @cloud_api.update(params[:cloud_api].permit(:name, :auth_uri, :auth_credential, :base_uri, :file_path, :folder_path))
+			redirect_to @cloud_api
+		else
+			render 'edit'
+		end
+	end
+	
+	def destroy
+		CloudApi.find(params[:id]).destroy
+		redirect_to cloud_apis_path
+	end
+	
 	
 	private
 		def cloud_api_params
