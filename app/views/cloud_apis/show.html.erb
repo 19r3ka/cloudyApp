@@ -1,0 +1,37 @@
+<!-- Cloud API page for specific CSPs -->
+
+<p>
+	<h1>
+		<strong><%= @cloud_api.name %></strong> stored information
+	</h1> 
+</p>
+<p>	
+	<strong>Cloud Storage name: </strong>
+	<%= @cloud_api.name %>
+</p>
+<p>	
+	<strong>Authentification uri: </strong>
+	<%= @cloud_api.auth_uri %>
+</p>
+<p>
+	<strong>Authentification credential: </strong>
+	<%= @cloud_api.auth_credential %>
+</p>
+<p>
+	<strong>Base uri: </strong>
+	<%= @cloud_api.base_uri %>
+</p>
+<p>
+	<strong>File path: </strong>
+	<%= @cloud_api.file_path %>
+	/
+</p>
+<p>
+	<strong>Folder path: </strong>
+	<%= @cloud_api.folder_path %>
+	/
+</p>
+
+<div><!-- navigation links --> 
+	<%= link_to 'Back', cloud_apis_path %>
+</div>

@@ -1,0 +1,31 @@
+<h1>Listing Cloud API</h1>
+
+<div><!-- This is going to be the main content -->
+	<table>
+		<tr>
+		  <th>Name</th>
+		  <th>Authentification uri</th>
+		  <th>Authentification credential</th>
+		  <th>Base uri</th>
+		  <th>File path</th>
+		  <th>Folder path</th>
+		</tr>
+		
+		<%= @cloud_apis.each do |csp| %>
+			<tr>
+				<td><%= csp.name %></td>
+				<td><%= csp.auth_uri %></td>
+				<td><%= csp.auth_credential %></td>
+				<td><%= csp.base_uri %></td>
+				<td><%= csp.file_path %></td>
+				<td><%= csp.folder_path %></td>	
+				<span><!-- navigation links for CRUD actions -->
+					
+				</span>	
+			</tr>
+		<% end %>
+	</table>
+</div>
+<div><!-- navigation links --> 
+	<%= link_to 'Add New CSP', new_cloud_api_path %>
+</div>

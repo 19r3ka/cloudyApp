@@ -1,0 +1,15 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  auth_uri: MyString
+  auth_credential: MyString
+  base_uri: MyString
+  file_path: MyString
+  folder_path: MyString
+
+two:
+  auth_uri: MyString
+  auth_credential: MyString
+  base_uri: MyString
+  file_path: MyString
+  folder_path: MyString
