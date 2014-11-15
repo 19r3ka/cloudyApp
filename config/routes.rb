@@ -4,6 +4,11 @@ Rails.application.routes.draw do
 	get 'pages/home'
 
 	resources :cloud_apis
+	resource :dropbox do
+		member do
+			get 'authorize'
+		end
+	end
 
 
 
