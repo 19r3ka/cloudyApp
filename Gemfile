@@ -39,3 +39,12 @@ gem 'spring',        group: :development
 # Use debugger
 # gem 'debugger', group: [:development, :test]
 
+#Use Rest Client for HTTP request
+gem 'faraday'
+
+#Create random tokens
+gem 'rubysl-securerandom', '~> 2.0.0'
+
+#Use Minitest
+gem 'minitest', '5.4.3'
+

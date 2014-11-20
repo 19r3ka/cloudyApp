@@ -4,9 +4,12 @@ Rails.application.routes.draw do
 	get 'pages/home'
 
 	resources :cloud_apis
-	resource :dropbox do
+	
+	# resource :dropbox, controller: 'dropbox'
+	resource :dropbox, controller: 'dropbox' do
 		member do
 			get 'authorize'
+			get 'callback'
 		end
 	end
 
