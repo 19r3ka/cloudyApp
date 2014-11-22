@@ -1,0 +1,10 @@
+<h1>Show Method Response Page</h1>
+<p>
+	You successfully authenticated as <strong><%= @info["display_name"].titleize %></strong>.
+</p>
+<div>
+	<h3>Storage Usage Information</h3>
+	<p>	Space used: <%= @info["quota_info"]["normal"] %> </p>
+	<p> Space shared: <%= @info["quota_info"]["shared"] %> </p>
+	<p>	Total space available: <%= @info["quota_info"]["quota"] %> </p>
+</div>

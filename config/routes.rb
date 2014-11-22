@@ -5,16 +5,12 @@ Rails.application.routes.draw do
 
 	resources :cloud_apis
 	
-	# resource :dropbox, controller: 'dropbox'
 	resource :dropbox, controller: 'dropbox' do
 		member do
-			get 'authorize'
 			get 'callback'
 		end
 	end
-
-
-
+	
 
 	
   # The priority is based upon order of creation: first created -> highest priority.
