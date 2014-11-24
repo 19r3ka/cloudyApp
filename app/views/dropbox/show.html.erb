@@ -1,10 +1,49 @@
 <h1>Show Method Response Page</h1>
 <p>
-	You successfully authenticated as <strong><%= @info["display_name"].titleize %></strong>.
+	You successfully authenticated as <strong><%= @info['display_name'].titleize %></strong>.
 </p>
 <div>
 	<h3>Storage Usage Information</h3>
 	<p>	Space used: <%= @info["quota_info"]["normal"] %> </p>
 	<p> Space shared: <%= @info["quota_info"]["shared"] %> </p>
 	<p>	Total space available: <%= @info["quota_info"]["quota"] %> </p>
+</div>
+<div>
+	<h3>Your Dropbox file tree</h3>
+	<div>
+		<p><%= link_to "Dropbox", dropbox_path %>
+		<% path = @metadata["path"].split('/')
+			(1..(path.length - 1)).each do |i| %>
+			> <%= path[i] %>
+			<% end	%>
+		</p>
+	</div>
+	<div>
+		<% if @metadata['contents'].nil? %>
+			<p><em>This folder is empty. Start adding some files in here!</em></p>
+		<% else %>
+			<table>
+				<tr>
+					<th>Name</th>
+					<th>Size</th>
+					<th>Last modified</th>
+				</tr>
+			<% @metadata["contents"].sort_by { |content| content["is_dir"].to_s }.reverse.each do |file| %>	
+				<% if file["is_dir"] == true %>
+				<tr>
+					<td><%= link_to file['path'].split('/').last, dropbox_path(:file_path => file['path']) %></td>
+					<td></td>
+					<td><%= file['modified']%></td>
+				</tr>
+				<% else %>
+				<tr>
+					<td><%= file['path'].split('/').last %></td>
+					<td><%= file['size'] %></td>
+					<td><%= file['modified']%></td>
+				</tr>
+				<% end %>	
+			<% end %>
+			</table>
+		<% end %>
+	</div>
 </div>

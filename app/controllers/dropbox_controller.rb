@@ -15,15 +15,17 @@ class DropboxController < ApplicationController
 	end
 	
 	def show
-		query = Dropbox.last                        #    TODO: change into Dropbox.find_by(:user_id) once the user interface has been defined
-		token = query.access_token					#    TODO: Find an intelligent way to add this block into a Class method
+		unless session.has_key?(:token)
+		  query = Dropbox.last                        		#    TODO: change into Dropbox.find_by(:user_id) once the user interface has been defined
+		  session[:token] = query.access_token				#    TODO: Find an intelligent way to add this block into a Class method
+		end
 		
 		@connexion = Dropbox.initialize(__method__)
-		@connexion.authorization :Bearer, token
+		@connexion.authorization :Bearer, session[:token]
 		
+		get_account_info
+		get_filetree
 		
-		response = @connexion.get 'account/info'            #request user account information if the access token works
-		@info = JSON.parse(response.body)   #	Get the user_name
 	end
 	
 	def update
@@ -76,7 +78,6 @@ class DropboxController < ApplicationController
 			end
 		
 			@connexion = Dropbox.initialize(__method__) #initializing a faraday::connexion instance		
-			
 		#	request token from api
 			response = @connexion.post 'oauth2/token',
 						:code => params[:code],
@@ -86,7 +87,22 @@ class DropboxController < ApplicationController
 						:client_secret => Dropbox.APP_SECRET
 						
 			@token = JSON.parse(response.body).symbolize_keys!.extract!(:access_token) #extract token
-			puts "the token to be saved is #{@token}"
+		
 		end
 		
+		def get_filetree
+			suffix = (params.has_key?(:file_path)) ? "metadata/auto#{URI.escape(params[:file_path])}" : "metadata/auto/"
+			response = @connexion.get do |req|
+				req.url suffix
+				req.params['list'] = true 
+				req.params['include_media_info'] = true
+			end	
+			
+			@metadata = JSON.parse(response.body)
+		end
+		
+		def get_account_info
+			response = @connexion.get 'account/info'            #	request user account information if the access token works
+			@info = JSON.parse(response.body)   				#	Get the user_name
+		end
 end
