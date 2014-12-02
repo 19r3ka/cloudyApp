@@ -4,8 +4,7 @@ Rails.application.routes.draw do
 	get 'pages/home'
 
 	resources :cloud_apis
-	resources :users
-	
+<<<<<<< HEAD
 	
 	resource :dropbox, controller: 'dropbox' do
 		member do
@@ -13,6 +12,13 @@ Rails.application.routes.draw do
 		end
 	end
 	
+=======
+	resources :users
+	
+
+
+
+>>>>>>> add-user
 
 	
   # The priority is based upon order of creation: first created -> highest priority.
