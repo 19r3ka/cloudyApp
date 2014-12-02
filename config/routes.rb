@@ -4,6 +4,8 @@ Rails.application.routes.draw do
 	get 'pages/home'
 
 	resources :cloud_apis
+	resources :users
+	
 
 
 
