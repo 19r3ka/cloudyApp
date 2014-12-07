@@ -1,5 +1,16 @@
 <% provide(:title, "Home") %>
-<h1>This will be my homepage</h1>
-<%= link_to "Connect Dropbox", new_dropbox_path %> |
-<%= link_to "Open Dropbox", dropbox_path %> 
+<div class="center jumbotron">
+	<h1>This will be my homepage</h1>
+	
+	<h2>
+		Time to retake control of your files:<br>
+		<%= link_to "Connect Dropbox", new_dropbox_path %> |
+		<%= link_to "Open Dropbox", dropbox_path %> 
+	</h2>
+	
+	<%= link_to "Sign Up Now!", '#', class:"btn btn-lg btn-primary" %>
+</div>
 
+<!-- This is where to add the final app logo 
+<%= link_to image_tag("") %>
+//-->
