@@ -22,8 +22,13 @@ gem 'sdoc', '~> 0.4.0',          group: :doc
 # See https://github.com/sstephenson/execjs#readme for more supported runtimes
 gem 'therubyracer', '~> 0.12.1'
 
+# Handle pagination on the app
+gem 'will_paginate'
+# Bootstrap that pagination
+gem 'bootstrap-will_paginate'
 #Use Rest Client for HTTP request
 gem 'faraday'
+
 #Create random tokens
 gem 'rubysl-securerandom', '~> 2.0.0'
 

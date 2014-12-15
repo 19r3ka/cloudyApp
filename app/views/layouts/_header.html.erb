@@ -5,7 +5,14 @@
 			<ul class="nav navbar-nav pull-right">
 				<li><%= link_to "Home", root_path %></li>
 				<li><%= link_to "Help", help_path %></li>
-				<li><%= link_to "Log In", '#' %></li>
+				
+				<% if logged_in? %>
+					<li><%= link_to "Accounts", '#' %></li>
+					<li><%= link_to "#{current_user.name}", current_user %></li>
+					<li><%= link_to "Log out", logout_path, method: "delete" %></li>
+				<% else %>
+					<li><%= link_to "Log In", login_path %></li>
+				<% end %>
 			</ul>
 		</nav>
 	</div>
