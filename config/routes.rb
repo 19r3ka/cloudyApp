@@ -13,6 +13,7 @@ Rails.application.routes.draw do
 
 	resources :cloud_apis
 	resources :users
+	resources :account_activations, only: [:edit]
 	
 	
 	resource :dropbox, controller: 'dropbox' do
