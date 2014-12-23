@@ -1,5 +1,9 @@
 Rails.application.routes.draw do
 
+  get 'password_resets/new'
+
+  get 'password_resets/edit'
+
 	root             'pages#home'
 
 	get 'help'     => 'pages#help'
@@ -14,6 +18,7 @@ Rails.application.routes.draw do
 	resources :cloud_apis
 	resources :users
 	resources :account_activations, only: [:edit]
+	resources :password_resets, only: [:new, :create, :edit, :update]
 	
 	
 	resource :dropbox, controller: 'dropbox' do
