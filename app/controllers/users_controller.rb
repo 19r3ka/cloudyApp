@@ -70,7 +70,7 @@ class UsersController < ApplicationController
     redirect_to(root_url) unless current_user?(@user)
   end
   
-  # Confirms user has adminatrive rights
+  # Confirms user has administrative rights
   def admin_user
     redirect_to(root_url) unless current_user.admin?
   end

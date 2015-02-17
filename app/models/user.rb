@@ -1,5 +1,8 @@
 class User < ActiveRecord::Base
   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]*[a-z\d\-]+\.[a-z]+\z/i
+  
+  has_many :cloud_accounts, inverse_of: :user, dependent: :destroy
+  
   before_save :downcase_email
   before_create :create_activation_digest
   has_secure_password
@@ -51,7 +54,7 @@ class User < ActiveRecord::Base
   
   #Sends activation email
   def send_activation_email
-    UserMailer.account_activation(@user).deliver_now
+    UserMailer.account_activation(self).deliver
   end
   
   # Returns true if a password reset has expired
@@ -80,6 +83,6 @@ class User < ActiveRecord::Base
   
   # Sends password reset email
   def send_password_reset_email
-    UserMailer.password_reset(self).deliver_now
+    UserMailer.password_reset(self).deliver
   end
 end

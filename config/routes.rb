@@ -1,31 +1,40 @@
 Rails.application.routes.draw do
 
   get 'password_resets/new'
-
   get 'password_resets/edit'
-
-	root             'pages#home'
-
-	get 'help'     => 'pages#help'
-	get 'about'    => 'pages#about'
-	get 'contact'  => 'pages#contact'
+  
+  root              'pages#home'
+  
+  get 'dashboard'=> 'dashboard#index'
+  
+  get 'help'     => 'pages#help'
+  get 'about'    => 'pages#about'
+  get 'contact'  => 'pages#contact'
 	
-	get 'signup'   => 'users#new'
-	get 'login'    => 'sessions#new'
-	post 'login'   => 'sessions#create'
-	delete 'logout'=> 'sessions#destroy'
+  get 'signup'   => 'users#new'
+  get 'dropbox/get_token' => 'dropbox#get_token'
+  get 'dropbox/new' => 'dropbox#new'
+  
+  get 'cloud_accounts/create' => 'cloud_accounts#create'
+  	
+  get 'login'    => 'sessions#new'
+  post 'login'   => 'sessions#create'
+  delete 'logout'=> 'sessions#destroy'
 
-	resources :cloud_apis
-	resources :users
-	resources :account_activations, only: [:edit]
-	resources :password_resets, only: [:new, :create, :edit, :update]
+  resources :cloud_apis
+  resources :users do
+    resources :cloud_accounts
+  end
 	
-	
-	resource :dropbox, controller: 'dropbox' do
-		member do
-			get 'callback'
-		end
+  resource :dropbox, controller: 'dropbox' do
+    member do
+	  get 'get_token'
 	end
+  end
+	
+  resources :account_activations, only: [:edit]
+  resources :password_resets, only: [:new, :create, :edit, :update]
+  resources :dashboard, controller: 'dashboard', only: [:index]
 	
 
 	

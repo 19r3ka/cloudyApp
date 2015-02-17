@@ -7,12 +7,12 @@
 	  <%= csrf_meta_tags %>
 	</head>
 	<body>
-		<%= render 'layouts/header' %>
+		<%= render 'header' %>
 		<div class="message">
 		  <%= render 'shared/flash_messages' %>
 		</div>
 		<div class="container">
-			<%= yield %>
+			<%= yield %>	
 		</div>
 		<%= render 'layouts/footer' %>
 	</body>

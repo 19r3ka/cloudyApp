@@ -1,108 +1,68 @@
 class DropboxController < ApplicationController
-	
+	layout "dashboard"
+	include DropboxHelper
+	before_action :logged_user_only 
+  
 	def new
-		authorize
+	  authorize
 	end
 	
-	def create
-		@dropbox = Dropbox.new(@token)
+	def get_token
+	# CSRF attack check
+	  csrf_token = session.delete(:csrf)
+	    if params[:state] != csrf_token
+	      flash[:danger] = "Possible CSRF attack!"
+	      redirect_to :root and return
+	    end
 		
-		if @dropbox.save
-			redirect_to @dropbox
-		else
-			#add some error handling stuff here
-		end
-	end
+	  connexion = Dropbox.start(__method__) #initializing a faraday::connexion instance	
 	
-	def show
-		unless session.has_key?(:token)
-		  query = Dropbox.last                        		#    TODO: change into Dropbox.find_by(:user_id) once the user interface has been defined
-		  session[:token] = query.access_token				#    TODO: Find an intelligent way to add this block into a Class method
-		end
-		
-		@connexion = Dropbox.initialize(__method__)
-		@connexion.authorization :Bearer, session[:token]
-		
-		get_account_info
-		get_filetree
-		
-	end
-	
-	def update
-		@dropbox = Dropbox.find_by(:user_id)
-		
-		if @dropbox.update_attributes(:access_token)
-			redirect_to @dropbox
-		else
-			#add some error handling stuff here
-		end
-	end
-	
-	def destroy
-		Dropbox.find_by(:user_id).destroy
-		redirect_to :root
-	end
-	
+	  #	request token from api
+      response = connexion.post 'oauth2/token',
+								:code => params[:code],
+								:redirect_uri => "http://#{request.domain}:3000/dropbox/get_token",
+								:grant_type => :authorization_code,
+								:client_id => ENV['DROPBOX_KEY'],
+								:client_secret => ENV['DROPBOX_SECRET']
+	  							
+      if session[:new_ca_token] = res[:access_token] 
+        redirect_to url_for(controller: 'cloud_accounts', action: 'create')
+      else
+		flash[:danger] = "Couldn't get authorization from Dropbox!"
+		redirect_to dashboard_url
+      end    
+    end
+  
 	private
 	
-		def callback
-			get_token
-			create 				
-		end
+	# Access the OAuth endpoint to grant authorization to the app
+	  def authorize
 		
-		def authorize
-		#	csrf_token creates a random token to pass with the requests to
-		#	prevent Cross Site attacks
-			csrf_token = SecureRandom.base64(18).tr('+/','-_').gsub(/=*$/, '')
-			session[:csrf] = csrf_token
-		#	Prepare the proper url
-			oauthUrl = Dropbox.build_uri(__method__) + "/oauth2/authorize"
+		csrf_token = SecureRandom.base64(18).tr('+/','-_').gsub(/=*$/, '')
+		session[:csrf] = csrf_token
+		
+		oauthUrl = Dropbox.build_uri(__method__) + "/oauth2/authorize" #build the proper url
 		
 		#	Prepare and send the authorization request
-			params = {
-				:client_id => Dropbox.APP_KEY,
-				:response_type => :code,
-				:redirect_uri => "#{Dropbox.APP_ROOT}/dropbox/callback",
-				:state => csrf_token
-			}
-			query = params.map{|k,v| "#{k.to_s}=#{URI.escape(v.to_s)}"}.join '&'
-			redirect_to "#{oauthUrl}?#{query}"
-		end
+		params = {
+		  :client_id => APP_KEY,
+		  :response_type => :code,
+		  :redirect_uri => "http://#{request.domain}:3000/dropbox/get_token",
+		  :state => csrf_token
+		}
+		query = params.map{|k,v| "#{k.to_s}=#{URI.escape(v.to_s)}"}.join '&'
+		redirect_to "#{oauthUrl}?#{query}"
 		
-		def get_token
-		#	CSRF attack check
-			csrf_token = session.delete(:csrf)
-			if params[:state] != csrf_token
-				@dropbox_message = "Possible CSRF attack!"
-				redirect_to :root and return
-			end
-		
-			@connexion = Dropbox.initialize(__method__) #initializing a faraday::connexion instance		
-		#	request token from api
-			response = @connexion.post 'oauth2/token',
-						:code => params[:code],
-						:redirect_uri => "#{Dropbox.APP_ROOT}/dropbox/callback",
-						:grant_type => :authorization_code,
-						:client_id => Dropbox.APP_KEY,
-						:client_secret => Dropbox.APP_SECRET
-						
-			@token = JSON.parse(response.body).symbolize_keys!.extract!(:access_token) #extract token
-		
-		end
-		
-		def get_filetree
-			suffix = (params.has_key?(:file_path)) ? "metadata/auto#{URI.escape(params[:file_path])}" : "metadata/auto/"
-			response = @connexion.get do |req|
-				req.url suffix
-				req.params['list'] = true 
-				req.params['include_media_info'] = true
-			end	
-			
-			@metadata = JSON.parse(response.body)
-		end
-		
-		def get_account_info
-			response = @connexion.get 'account/info'            #	request user account information if the access token works
-			@info = JSON.parse(response.body)   				#	Get the user_name
-		end
+	  end
+
+  # Before_filters
+  	
+  # Ensure the right user has access to their resources
+  def logged_user_only
+    unless logged_in?
+	  store_location
+	  flash[:danger] = "Pleascreatee log in!"
+	  redirect_to login_url
+	end
+  end  
 end

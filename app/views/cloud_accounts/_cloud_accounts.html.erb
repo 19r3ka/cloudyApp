@@ -1,0 +1,12 @@
+<div>
+	<div>
+		<p> Connected Accounts </p>
+		<%= render current_user.cloud_acounts %>
+	</div>
+	<div>
+		<p> Connect More </p>
+		<% if @cloud_acounts = show_disconnected_accounts %>
+		  <%= render @cloud_acounts %>
+		<% end %>
+	</div>
+</div>

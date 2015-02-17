@@ -1,0 +1,31 @@
+<header class="navbar navbar-fixed-top navbar-inverse">
+	<div class="container">
+		<nav>
+			<ul class="nav navbar-nav pull-right">
+			<% if logged_in? %>
+				<li><%= link_to "#{current_user.name}", current_user %></li>
+				<li><%= link_to "Log out", logout_path, method: "delete" %></li>
+			<% else %>
+				<li><%= link_to "Log In", login_path %></li>
+			<% end %>
+			</ul>
+			<ul id="logo">	
+				<%= link_to "Cloudy", root_path, id: "logo" %>
+			</ul>
+			<ul class="nav navbar-nav pull-left">
+			<% if logged_in? %>
+				<% unless current_user.cloud_accounts.empty? %>
+					<% @cloud_accounts = current_user.cloud_accounts %>
+					<% @account = display_cloud_info(@cloud_accounts) %>
+						<li><%= number_to_human_size(@account[:space_used]) %> 
+						/ <%= number_to_human_size(@account[:space_available]) %></li>
+				<% else %>
+					<li><%= link_to "Connect Dropbox", new_dropbox_path(session[:user_id]) %></li>
+				<% end %>
+			<% else %>
+				<li><%= link_to "Connect your first account", new_dropbox_path(session[:user_id]) %></li> 
+			<% end %>
+			</ul>
+		</nav>
+	</div>
+</header>

@@ -1,0 +1,6 @@
+<div>
+	<p> image for cloud account here <p>
+	<%= @cloud_account.provider %>
+	<%= @cloud_account.space_used / @cloud_account.space_available %>
+	<%= link_to "Disconnect", destroy_cloud_account_path(@cloud_account) %>
+</div>
