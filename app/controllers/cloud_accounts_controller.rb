@@ -1,10 +1,6 @@
 class CloudAccountsController < ApplicationController
   before_action :logged_user_only
   
-  def index
-    
-  end
-  
   def new
   
   end
@@ -19,6 +15,19 @@ class CloudAccountsController < ApplicationController
       end
       redirect_to dashboard_url
     end
+  end
+  
+  def index
+    @cloud_accounts = current_user.cloud_accounts
+    render "_cloud_explorer"
+  end
+  
+  def show
+    @cloud_account = CloudAccount.find(params[:id])
+    @cloud_file = CloudFile.new(provider: @cloud_account.provider)
+    @cloud_file.path = params[:file_path] if params.has_key?(:file_path)
+    @cloud_file.get_metadata
+    render "_cloud_explorer"
   end
   
   private

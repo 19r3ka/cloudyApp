@@ -15,7 +15,7 @@
 			<ul class="nav navbar-nav pull-left">
 			<% if logged_in? %>
 				<% unless current_user.cloud_accounts.empty? %>
-					<% @cloud_accounts = current_user.cloud_accounts %>
+					<% @cloud_accounts ||= current_user.cloud_accounts %>
 					<% @account = display_cloud_info(@cloud_accounts) %>
 						<li><%= number_to_human_size(@account[:space_used]) %> 
 						/ <%= number_to_human_size(@account[:space_available]) %></li>

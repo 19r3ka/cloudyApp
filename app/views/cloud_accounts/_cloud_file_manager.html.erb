@@ -1,0 +1,38 @@
+provide(:title, <%= current_user.name %>)
+
+<div> <!-- For the tabs -->
+	<div class="container">
+		<ul>
+		  <li><%= link_to "+",   current_user %></li> 
+		  <% unless @cloud_accounts.nil? %>
+		  <li class="active_tab">
+		  <% else %>
+		  <li>
+		  <% end %>
+		  <%= link_to "All", cloud_accounts_path %></li> 
+          
+          <% current_user.cloud_accounts.each do |cloud_account| 
+				if !@cloud_account.nil?
+				  if cloud_account.provider == @cloud_account.provider %>
+		  <li class="active_tab">
+				  <% else %>
+		  <li>
+				  <% end %>
+				<% else %>
+		  <li>
+				<% end %>
+		  <%= link_to #{cloud_account.provider}, cloud_account %></li>
+          <% end %>
+		</ul>
+	</div>
+</div>
+
+<div> <!-- file explorer-->
+	<div class="container">
+		<% if @cloud_file.nil? 
+			render "new_dashboard"
+		   else
+			render "cloud_file_explorer"
+		   end %>S
+	</div>
+</div>

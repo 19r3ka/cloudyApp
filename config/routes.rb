@@ -3,17 +3,20 @@ Rails.application.routes.draw do
   get 'password_resets/new'
   get 'password_resets/edit'
   
-  root              'pages#home'
+  root 'pages#home'
   
-  get 'dashboard'=> 'dashboard#index'
+  get 'dashboard' => 'dashboard#index'
+  
+  get 'cloud_accounts'                 => 'cloud_accounts#index'
+  get 'cloud_accounts/:id(/:filepath)' => 'cloud_accounts#show'
   
   get 'help'     => 'pages#help'
   get 'about'    => 'pages#about'
   get 'contact'  => 'pages#contact'
 	
-  get 'signup'   => 'users#new'
+  get 'signup'            => 'users#new'
   get 'dropbox/get_token' => 'dropbox#get_token'
-  get 'dropbox/new' => 'dropbox#new'
+  get 'dropbox/new'       => 'dropbox#new'
   
   get 'cloud_accounts/create' => 'cloud_accounts#create'
   	
@@ -22,8 +25,13 @@ Rails.application.routes.draw do
   delete 'logout'=> 'sessions#destroy'
 
   resources :cloud_apis
-  resources :users do
-    resources :cloud_accounts
+  
+  map.resources :users do |users|
+    users.resources :cloud_accounts
+  end
+  
+  map.resources :cloud_accounts do |cloud_accounts|
+    cloud_accounts.resources :cloud_files
   end
 	
   resource :dropbox, controller: 'dropbox' do

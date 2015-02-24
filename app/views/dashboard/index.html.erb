@@ -1,13 +1,5 @@
-<h1> Dashboard To Be</h1>
-
-<div> <!-- For the tabs -->
-	<div class="container">
- 
-	</div>
-</div>
-
-<div> <!-- file explorer-->
-	<div class="container">
-		
-	</div>
-</div>
+<% unless logged_in?
+  render "new_user_dashboard"
+   else
+  render "logged_dashboard"
+   end %>
