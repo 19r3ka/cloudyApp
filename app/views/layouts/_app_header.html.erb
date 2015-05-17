@@ -1,0 +1,52 @@
+<header>
+	<nav class="navbar navbar-fixed-top navbar-inverse">
+		<div class="container-fluid">
+			<div>
+				<ul class="nav navbar-nav">
+				  <% if logged_in? %>
+					<% unless current_user.cloud_accounts.empty? %>
+					  <% @user_cloud = display_cloud_info(current_user.cloud_accounts) %>
+					  <li>
+						<span class="badge" ><%= current_user.cloud_accounts.count %></span>
+						<%= number_to_human_size(@user_cloud[:space_used]) %> / 
+						<%= number_to_human_size(@user_cloud[:space_available]) %>
+					  </li>
+					<% else %>
+					  <li><%= link_to "Connect Dropbox", new_dropbox_path(session[:user_id]) %></li>
+					<% end %>
+				  <% else %>
+					<li><%= link_to new_dropbox_path(session[:user_id]) do %>
+					  <span class="glyphicon glyphicon-cloud"></span>
+					  Connect your first account
+					<% end %></li> 
+				  <% end %>
+				</ul>
+			</div>
+			<div class="navbar-header">	
+			  <%= link_to "Cloudy", root_path, id: "logo", class: "navbar-brand" %>
+			</div>
+			<div class="nav navbar-nav">
+				<%= build_form(@form_action) %>
+			</div>
+			<div>
+			  <ul class="nav navbar-nav navbar-right">
+			    <% if logged_in? %>
+				  <li><%= link_to current_user do %>
+					<span class="glyphicon glyphicon-user"></span>
+					<%= current_user.name %>
+				  <% end %></li>
+				  <li><%= link_to logout_path, method: "delete" do %>
+					<span class="glyphicon glyphicon-log-out"></span>
+					Log Out
+				  <% end %></li>
+			    <% else %>
+				  <li><%= link_to login_path do %>
+					<span class="glyphicon glyphicon-log-in"></span>
+					Log In
+				  <% end %></li>
+			    <% end %>
+			  </ul>
+			</div>			
+		</div>
+	</nav>
+</header>

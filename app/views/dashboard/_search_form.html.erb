@@ -1,0 +1,9 @@
+<!-- Search form -->
+<%= form_for(:search, {url: search_path, html: {class: "form-inline", role: "form"}}) do |f| %>
+	<%= content_tag :div, class: "form-group" do %>
+		<%= f.text_field(:query, class: "form-control") %>
+		<%= f.hidden_field :folder_path, value: @cloud_file.dir_path if @cloud_file %>
+		<%= f.collection_select(:cloud_account_id, current_user.cloud_accounts, :id, :provider, {}, {class: "form-control"}) %>
+		<%= f.submit("Search", class: "form-control btn-default") %>
+	<% end %>
+<% end %>

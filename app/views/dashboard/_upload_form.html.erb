@@ -1,0 +1,11 @@
+<!-- form for uploading files to cloud storage services -->
+
+<%= form_for(@upload_file, {url: upload_path, html: {class: "form-inline", role: "form"}}) do |f| %>
+	<%= content_tag :div, class: "form-group" do %>
+		<%= f.hidden_field :current_cloud_account_id, value: @upload_file.cloud_account_id %>
+		<%= f.hidden_field :folder_path, value: @upload_file.dir_path %>
+		<%= f.file_field :content, class: "form-control" %>
+		<%= f.collection_select(:cloud_account_id, current_user.cloud_accounts, :id, :provider, {}, {class: "form-control"}) %>
+		<%= f.submit("Upload!", class: "form-control btn-default") %>
+	<% end %>
+<% end %>

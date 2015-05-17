@@ -5,10 +5,24 @@ Rails.application.routes.draw do
   
   root 'pages#home'
   
-  get 'dashboard' => 'dashboard#index'
+  get 'dashboard'                                        => 'dashboard#index'
+  get 'dashboard/cancel'                                 => 'cloud_accounts#cancel',             as: :cancel
   
-  get 'cloud_accounts'                 => 'cloud_accounts#index'
-  get 'cloud_accounts/:id(/:filepath)' => 'cloud_accounts#show'
+  post 'users/:user_id/cloud_accounts/search'            => 'cloud_accounts#search',        as: :search
+  get 'users/:user_id/cloud_accounts/:id/download/'      => 'cloud_accounts#download',      as: :download
+  get 'users/:user_id/cloud_accounts/:id/copy/'          => 'cloud_accounts#copy'
+  post 'users/:user_id/cloud_accounts/:id/copy/'         => 'cloud_accounts#copy',          as: :copy
+  get 'users/:user_id/cloud_accounts/:id/rename/'        => 'cloud_accounts#rename'
+  get 'users/:user_id/cloud_accounts/:id/move/'          => 'cloud_accounts#move'
+  post 'users/:user_id/cloud_accounts/:id/move/'         => 'cloud_accounts#move',          as: :move
+  get 'users/:user_id/cloud_accounts/:id/delete/'        => 'cloud_accounts#delete'
+  get 'users/:user_id/cloud_accounts/upload'             => 'cloud_accounts#upload'
+  post 'users/:user_id/cloud_accounts/upload/'           => 'cloud_accounts#upload',        as: :upload
+  get 'users/:user_id/cloud_accounts/:id/create_folder'  => 'cloud_accounts#create_folder'
+  post 'users/:user_id/cloud_accounts/:id/create_folder' => 'cloud_accounts#create_folder', as: :new_folder
+  get 'users/:user_id/cloud_accounts/:id/'               => 'cloud_accounts#show'
+  
+  get 'cloud_accounts' => 'cloud_accounts#index'
   
   get 'help'     => 'pages#help'
   get 'about'    => 'pages#about'
@@ -26,12 +40,12 @@ Rails.application.routes.draw do
 
   resources :cloud_apis
   
-  map.resources :users do |users|
-    users.resources :cloud_accounts
-  end
-  
-  map.resources :cloud_accounts do |cloud_accounts|
-    cloud_accounts.resources :cloud_files
+  resources :users do
+    resources :cloud_accounts do 
+      member do 
+        get 'download', 'upload', 'rename', 'copy', 'move'
+      end
+    end
   end
 	
   resource :dropbox, controller: 'dropbox' do

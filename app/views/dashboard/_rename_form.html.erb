@@ -1,0 +1,11 @@
+<!-- Form for rename -->
+
+<%= form_for(@cloud_file, {url: move_path, html: {class: "form-inline", role: "form"}}) do |f| %>
+  <%= content_tag :div, class: "form-group" do %>
+      <%= f.hidden_field :fops, value: @form_action %>
+      <%= f.hidden_field :caid, value: @cloud_file.cloud_account_id %>
+	  <%= f.hidden_field :path, value: @cloud_file.path %>
+	  <%= f.text_field :name, value: @cloud_file.name, class: "form-control" %>
+	  <%= f.submit("rename", class: "form-control btn-default") %>
+	<% end %>
+<% end %>

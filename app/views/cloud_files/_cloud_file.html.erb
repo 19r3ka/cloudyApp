@@ -1,0 +1,42 @@
+<!-- cloud file partial -->
+
+<div class="cloud-file thumbnail">
+  <ul class="list-unstyled" >
+    <li><%= image_tag cloud_file.thumbnail, class: "img-responsive img-thumbnail" %></li>
+    <li><%= link_to cloud_file.name, [current_user, cloud_file.cloud_account, 
+			        file_path: cloud_file.path] %></li>
+	<% unless cloud_file.is_dir %>		
+	  <li><%= cloud_file.size %> - <%= cloud_file.filetype %></li>
+    <% end %>
+    <li>
+		<div class="">
+			<div class="">
+				<div class="btn-group btn-group-xs">	
+					<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+						<span class="button-label">Actions</span>
+						<span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu" role="menu">	
+					  <% cloud_file.file_actions.each do |action, icon| %>
+						<li>
+						  <%= link_to(url_for(controller: 'cloud_accounts', 
+						                      action: action, id: cloud_file.cloud_account_id, 
+						                      file_path: cloud_file.path)) do %>	
+							<span class="glyphicon glyphicon-<%= icon %>"></span>
+							<span class="button-label"><%= action %></span>
+						  <% end %>
+						</li>
+					  <% end %> 
+					</ul> 
+					<%= link_to(url_for(controller: 'cloud_accounts', 
+						                action: "delete", id: cloud_file.cloud_account_id, 
+						                file_path: cloud_file.path), class: "btn btn-danger") do %>
+					  <span class="glyphicon glyphicon-remove"></span>
+					  Delete
+					<% end %>
+				</div>
+			</div>
+		</div>
+    </li>
+  </ul>
+</div>

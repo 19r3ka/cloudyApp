@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150120161319) do
+ActiveRecord::Schema.define(version: 20150221161823) do
 
   create_table "cloud_accounts", force: true do |t|
     t.string   "provider"
@@ -23,6 +23,11 @@ ActiveRecord::Schema.define(version: 20150120161319) do
 
   add_index "cloud_accounts", ["user_id", "provider"], name: "index_cloud_accounts_on_user_id_and_provider", unique: true
   add_index "cloud_accounts", ["user_id"], name: "index_cloud_accounts_on_user_id"
+
+  create_table "cloud_files", force: true do |t|
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "csp_accounts", force: true do |t|
     t.string   "access_token"

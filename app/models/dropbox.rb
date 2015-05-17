@@ -10,6 +10,7 @@ class Dropbox < ActiveRecord::Base
   
   # Get the account information from Dropbox
   # Returns JSON formatted used/available space
+  
   def get_account_info
     uri = {account_info_path: "account/info"}
     access_token = self.access_token
@@ -25,33 +26,206 @@ class Dropbox < ActiveRecord::Base
   
   # Get the file information from Dropbox
   # Returns JSON formatted used/available space
-  def get_file_info(cloud_file)
-    uri = {file_path: cloud_file.path}
-    access_token = self.access_token
+  def get_metadata(cloud_file)
+    Logger.new(STDOUT).debug "Entered dropbox.get_metadata"
+    uri = {file_path: cloud_file.path} if cloud_file.path
+    response = format_response(Dropbox.successful_request?(:metadata, access_token, uri))
+    tree_cache(response)
+  end
+  
+  # Get the link to a specific file on the Dropbox servers
+  # Returns JSON formatted link and expiration date
+  def get_media(cloud_file)
+    uri = {file_path: cloud_file.path} if cloud_file.path
     
-    Dropbox.successful_request?(:metadata, access_token, uri)   
+    format_response(Dropbox.successful_request?(:media, access_token, uri))
+  end
+  
+  # Get the thumbnail to the requested file
+  # Returns ?
+  def get_thumb(cloud_file)
+    uri = {file_path: cloud_file.path} if cloud_file.path
+    response = Dropbox.successful_request?(:thumbnail, access_token, uri)
+    
+    response.body
+  end
+  
+  # Queries the API for changes since last cursor
+  #	Returns the newest entries [path, metadata]
+  def get_delta(cursor="", path="")
+    payload = {
+      include_media_info: true
+    }
+    payload[:cursor]      = cursor unless cursor.nil? || cursor.blank?
+    payload[:path_prefix] = path unless path.blank?
+    
+    connexion  = Dropbox.start(:delta, access_token)
+    response   = connexion.post do |req|
+      req.url    "delta"
+      req.body = payload
+    end
+    res = format_response(response)
+    Logger.new(STDOUT).debug(">> dropbox.get.delta: cursor= #{cursor}; response= #{res.inspect}")
+    res 
+  end
+  
+  # Queries the API to retrieve the latest cursor
+  # Returns the cursor in a hash
+  def get_latest_cursor(path="")
+    payload    = {
+      include_media_info: true
+    }
+    payload[:path_prefix] = path unless path.blank?
+    
+    connexion  = Dropbox.start(:latest_cursor, access_token)
+    response   = connexion.post do |req|
+      req.url    "delta/latest_cursor"
+      req.body = payload
+    end
+    
+    res = format_response(response)
+    Logger.new(STDOUT).debug(">> dropbox.get_latest_cursor: the value of response: #{res.inspect}")
+    res[:cursor]
   end
   
   # Download file from Dropbox
   # Returns nothing
-  def get_file(cloud_file)
+  def download(cloud_file)
+    uri = {file_path: cloud_file.path}    
+    response = Dropbox.successful_request?(:file, access_token, uri)
+    
+    response.body
+  end
+  
+  # Upload file from Dropbox
+  # Returns uploaded file metadata
+  def upload(cloud_file)
     uri = {file_path: cloud_file.path}
-    File.open(cloud_file.name, "w") do |f|
-      if res = Dropbox.successful_request?(:file, self.access_token, uri)
-        f.write(res)
+    response = format_response(Dropbox.file_put(cloud_file.content, access_token, uri))
+    tree_cache(response)
+  end
+  
+  # Delete file from Dropbox
+  # Returns the metadata of the deleted file
+  def delete(cloud_file)
+    
+    payload = {
+      root: "auto",
+      path: cloud_file.path
+    }
+    
+    Logger.new(STDOUT).debug "payload in dropbox.delete is #{payload.inspect}"
+    connexion = Dropbox.start(:delete, access_token)
+    response  = connexion.post do |req|
+      req.url    "fileops/delete"
+      req.body = payload
+    end
+    response = format_response(response)
+    Logger.new(STDOUT).debug "response in dropbox.delete is #{response.inspect}"
+    Filetree.new('dropbox').update([response[:path], nil])
+    
+  end
+  
+  # Search Dropbox for files with query in name
+  # Returns results in JSON format
+  def search(query, path="/")
+    # TODO: Only query the API if the filetree search is unsuccessfuls
+    url       = File.join("search/auto", path)
+    payload   = { query: query}
+    connexion = Dropbox.start(:search, access_token)
+    response  = connexion.post do |req|
+      req.url    url
+      req.body = payload
+    end
+    
+    format_response(response)
+  end
+  
+  # Move file from one place to another
+  # Returns the new metadata of the moved file
+  def move(from_path, to_path, root="auto")
+    payload = {
+      root:      root,
+      from_path: from_path,
+      to_path:   to_path
+    }
+    
+    connexion = Dropbox.start(:move, access_token)
+    res  = connexion.post do |req|
+      req.url "fileops/move"
+      req.body = payload
+    end
+    
+      response = format_response(res)
+      tree_cache(response)
+  end
+  
+  # Move file from one place to another
+  # Returns the new metadata of the moved file
+  def copy(from_path, to_path, root="auto")
+    payload = {
+      root:      root,
+      from_path: from_path,
+      to_path:   to_path
+    }
+    
+    connexion = Dropbox.start(:copy, access_token)
+    res  = connexion.post do |req|
+      req.url "fileops/copy"
+      req.body = payload
+    end
+    
+    response = format_response(res)
+    tree_cache(response)
+  end
+  
+  # Create new folder 
+  # Returns the metadata of the new folder
+  def create_folder(to_path, root="auto")
+    payload = {
+      path: to_path,
+      root: root
+    }
+    
+    connexion = Dropbox.start(:create_folder, access_token)
+    response = connexion.post do |req|
+      req.url "fileops/create_folder"
+      req.body = payload
+    end
+    
+    response = format_response(response)
+    tree_cache(response)
+  end
+  
+  def metadata_to_delta(metadata)
+    if metadata.is_a? Hash
+      entries = []
+      if metadata.has_key?(:contents)
+        metadata[:contents].each { |child|
+          metadata_to_delta(child)
+        }
+        metadata = metadata.reject {|k,v| k == :contents }
       end
+      entries << [metadata[:path], metadata.stringify_keys]
     end
   end
   
-  
+  def tree_cache(metadata)
+    if entries = metadata_to_delta(metadata)
+      filetree = Filetree.new('dropbox')
+      entries.each{|entry| filetree.update(entry)}
+    end
+    metadata
+  end
   
   # Class methods
-  
+      
   # Initializes the Faraday connection to the API
   # Returns a Faraday connection instance
   def Dropbox.start(for_method, access_token = nil)
 	connexion = Faraday::Connection.new(build_uri(for_method), 
 	  :ssl => {:ca_file => '/etc/ssl/certs/ca-certificates.crt'}) do |faraday|
+	  faraday.request  :multipart
 	  faraday.request  :url_encoded      # form-encode POST params
    	  faraday.response :logger           # log requests to STDOUT
       faraday.adapter  Faraday.default_adapter
@@ -66,7 +240,7 @@ class Dropbox < ActiveRecord::Base
 	case uri
 	  when :authorize
 		prefix = "www"
-	  when :get_token, :account_info
+	  when :get_token, :account_info, :metadata, :media, :delete, :move, :copy, :create_folder, :search, :delta, :latest_cursor
 		prefix = "api"
 	  else
 		prefix = "api-content"
@@ -80,16 +254,36 @@ class Dropbox < ActiveRecord::Base
     
     case resource
       when :metadata
-	    suffix = "metadata/auto#{URI.escape(uri[:file_path]) if uri.has_key?(:file_path)}"
+	    suffix = "metadata/auto#{URI.escape(uri[:file_path]) if uri && uri.has_key?(:file_path)}"
 	    connexion.params['list'] = true 
 		connexion.params['include_media_info'] = true
+      when :media
+        suffix= "media/auto#{URI.escape(uri[:file_path]) if uri && uri.has_key?(:file_path)}"
+      when :thumbnail
+        suffix= "thumbnails/auto#{URI.escape(uri[:file_path]) if uri && uri.has_key?(:file_path)}"
+        connexion.params['size'] = 'm'
 	  when :account_info
 	    suffix = uri[:account_info_path]
 	  when :file
-	    suffix = "files/auto#{URI.escape(uri[:file_path]) if uri.has_key?(:file_path)}"
+	    suffix = "files/auto#{URI.escape(uri[:file_path]) if uri && uri.has_key?(:file_path)}"
     end
     
     Dropbox.dp_get(connexion, suffix)
+  end
+  
+  def Dropbox.file_put(content, access_token, uri)
+    connexion = Dropbox.start(:upload, access_token)
+    suffix    = "files_put/auto#{URI.escape(uri[:file_path]) if uri && uri.has_key?(:file_path)}"
+     
+    connexion.params[:overwrite] = false
+    connexion.params[:autorename] = true
+    
+    connexion.put do |req|
+      req.url suffix
+      req.headers['Content-Length'] = "#{content.size}"
+      req.headers['Content-Type']   = content.content_type
+      req.body = content.tempfile.read
+    end
   end
   
   private
@@ -101,10 +295,35 @@ class Dropbox < ActiveRecord::Base
     end
   end
   
-  def format_response(response)
-    JSON.parse(response.body).symbolize_keys!
+  def handle_response(response)
+    status = response.status
+    case status
+      when 200
+        parse_response(response)
+      else
+        raise "#{status} -> #{response.body}"
+    end
   end
   
+  def format_response(response)
+    if response.is_a? Faraday::Response
+      begin
+        response = handle_response(response)     
+      rescue => e
+        logger.warn "An error occured: #{e}"
+        return false
+      end
+    end
+    if response.is_a? Array
+      response.map {|item| format_response(item)}
+    else
+      response.symbolize_keys!
+    end
+  end
+  
+  def parse_response(response)
+    JSON.parse(response.body)
+  end
 end
 
 

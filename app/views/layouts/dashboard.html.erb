@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <html>
 	<head>
-	  <title><%= yield(:title) %>| Cloudy</title>
+	  <title><%= yield(:title) %> | Cloudy</title>
 	  <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
 	  <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
 	  <%= csrf_meta_tags %>
 	</head>
 	<body>
-		<%= render 'header' %>
-		<div class="message">
-		  <%= render 'shared/flash_messages' %>
+		<%= render 'layouts/app_header' %>
+		<div class="message container">
+			<div class="row">
+				<%= render 'shared/flash_messages' %>
+			</div>
 		</div>
 		<div class="container">
 			<%= yield %>	

@@ -1,5 +1,4 @@
 class DropboxController < ApplicationController
-	layout "dashboard"
 	include DropboxHelper
 	before_action :logged_user_only 
   

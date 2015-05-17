@@ -3,7 +3,6 @@ module SessionsHelper
   # Logs in the given user
   def log_in(user)
     session[:user_id] = user.id
-    load_cloud_accounts
   end
   
   # Remembers a user in a persistent session
@@ -46,7 +45,6 @@ module SessionsHelper
   # Logs current user out
   def log_out
     forget(current_user)
-    unload_cloud_accounts
     @current_user = nil
     session.delete(:user_id)
   end
@@ -60,27 +58,5 @@ module SessionsHelper
   # Stores the URL to be accessed
   def store_location
     session[:forwarding_url] = request.url if request.get?
-  end
-
-  # Dumps current user's cloud access_tokens into session
-  def load_cloud_accounts
-    if logged_in?
-      if cloud_accounts = current_user.CloudAccount.build
-        cloud_accounts.each do |account|
-          session[account.provider.to_sym] = account.access_token
-        end
-      end
-    end
-  end
-  
-  # nullifies access_tokens in session
-  def unload_cloud_accounts
-    if logged_in?
-      if cloud_accounts = current_user.CloudAccount.build
-        cloud_accounts.each do |account|
-          session[account.provider.to_sym] = nil
-        end
-      end
-    end
   end
 end
