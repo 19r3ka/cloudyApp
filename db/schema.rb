@@ -11,7 +11,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150221161823) do
+ActiveRecord::Schema.define(version: 20150523185115) do
+
+  create_table "boxes", force: true do |t|
+    t.string   "access_token"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "cloud_accounts", force: true do |t|
     t.string   "provider"
@@ -19,6 +25,7 @@ ActiveRecord::Schema.define(version: 20150221161823) do
     t.integer  "user_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "refresh_token"
   end
 
   add_index "cloud_accounts", ["user_id", "provider"], name: "index_cloud_accounts_on_user_id_and_provider", unique: true

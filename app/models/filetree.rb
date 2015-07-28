@@ -1,20 +1,19 @@
 class Filetree
   include ActiveModel::Model
-  
+
   attr_accessor :tree, :latest_cursor
   attr_reader   :cloud_account
-  
+
   ROOT = '/'
-  
+
   def initialize(cloud_account)
     @cloud_account        = cloud_account
     @latest_cursor, @tree = Filetree.load_tree(@cloud_account)
   end
-  
+
   def update(entry)
     path, metadata = entry
     branch, leaf   = split_path(path)
-    
     unless metadata.nil?
       children = @tree
       branch.each do |part|
@@ -24,9 +23,8 @@ class Filetree
         end
         children = node.content
       end
-    
       node = get_or_create_child(children, leaf)
-      if metadata[:is_dir]
+      if metadata["is_dir"]
         node.content = [] unless node.is_folder?
       else
         node.content = metadata
@@ -46,15 +44,13 @@ class Filetree
         children.delete_if{|node| node.name == leaf}
       end
     end
-    
-    save
   end
-  
+
   def reset
     @tree.clear
     save
   end
-  
+
   def find(path)
     branch, leaf = split_path(path)
     tree = @tree
@@ -65,48 +61,52 @@ class Filetree
       else
         tree = result.content
       end
-    end
-    tree = @tree if tree.empty?
+    end unless branch.empty?
+    #tree = @tree if tree.empty?
     if leaf.nil?
-      content = tree.map{ |node| 
+      content = tree.map{ |node|
         if node.is_folder?
-          { "path"     => File.join(ROOT, node.name), 
+          { "path"     => File.join(ROOT, node.name),
             "is_dir"   => true }
         else
           node.content
         end
-        node 
+        node
       }
-      Node.new("", content)
+      return false if content.empty?
+      res = Node.new(ROOT, content)
     else
-      res = search(tree, leaf).first
+      res = search(tree, leaf)
+      res.first if res
     end
     res
   end
-  
+
   def search(folder, term)
-    folder.select{|child| child.name == term}
+    res = folder.select{|child| child.name == term}
+    return false if res.empty?
+    res
   end
-  
+
   def get_or_create_child(children, name)
     child = children.select {|node| node.name == name}.first
-    
+
     if child.blank?
       child = Node.new(name, nil)
       children << child
-    end 
+    end
     child
   end
-  
+
   def self.cache_file(cloud_account)
     "#{cloud_account}_cache"
   end
-  
+
   def split_path(path)
     bad, *parts = path.split '/'
     [parts, parts.pop]
   end
-  
+
   def self.load_tree(cloud_account)
     name  = Filetree.cache_file(cloud_account)
     cache = Rails.cache.fetch(name) || false
@@ -119,7 +119,7 @@ class Filetree
       [nil, []]
     end
   end
-  
+
   def save
     name = Filetree.cache_file(@cloud_account)
     content = @latest_cursor, Node.to_json_content(@tree)

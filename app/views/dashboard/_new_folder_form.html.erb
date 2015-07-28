@@ -1,10 +1,10 @@
-<!-- Form for New Folder -->
+<!-- Form for Creating New Folder -->
 
 <%= form_for(@cloud_file, {url: new_folder_path, html: {class: "form-inline", role: "form"}}) do |f| %>
   <%= content_tag :div, class: "form-group" do %>
       <%= f.hidden_field :fops, value: @form_action %>
       <%= f.hidden_field :caid, value: @cloud_file.cloud_account_id %>
-	  <%= f.hidden_field :path, value: @cloud_file.path %>
+	  <%= f.hidden_field :identifier, value: @cloud_file.identifier %>
 	  <%= f.text_field :name, class: "form-control" %>
 	  <%= f.submit("Create!", class: "form-control btn-default") %>
 	<% end %>

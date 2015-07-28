@@ -44,9 +44,9 @@ class DropboxController < ApplicationController
 		
 		#	Prepare and send the authorization request
 		params = {
-		  :client_id => APP_KEY,
+		  :client_id => ENV['DROPBOX_KEY'],
 		  :response_type => :code,
-		  :redirect_uri => "http://#{request.domain}:3000/dropbox/get_token",
+		  :redirect_uri => "http://localhost:3000/dropbox/get_token",
 		  :state => csrf_token
 		}
 		query = params.map{|k,v| "#{k.to_s}=#{URI.escape(v.to_s)}"}.join '&'
@@ -60,7 +60,7 @@ class DropboxController < ApplicationController
   def logged_user_only
     unless logged_in?
 	  store_location
-	  flash[:danger] = "Pleascreatee log in!"
+	  flash[:danger] = "Please log in!"
 	  redirect_to login_url
 	end
   end  

@@ -28,6 +28,7 @@ gem 'will_paginate'
 gem 'bootstrap-will_paginate'
 #Use Rest Client for HTTP request
 gem 'faraday'
+gem 'faraday_middleware'
 
 #Create random tokens
 gem 'rubysl-securerandom', '~> 2.0.0'
@@ -35,13 +36,13 @@ gem 'rubysl-securerandom', '~> 2.0.0'
 group :development, :test do
 	# Use sqlite3 as the database for Active Record
 	gem 'sqlite3'
-	
+
 	# Use byebug for on-page debugging
 	#gem 'byebug'
-	
+
 	# Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
 	gem 'spring'
-	
+
 	# Better error handling debugging
 	gem 'web-console'
 end
@@ -58,7 +59,7 @@ group :production do
     # Use PostgreSQL database
     gem 'pg'
     # Use with Heroku
-    gem 'rails_12factor'    
+    gem 'rails_12factor'
 end
 
 

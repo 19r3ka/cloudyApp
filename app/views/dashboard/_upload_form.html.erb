@@ -4,6 +4,7 @@
 	<%= content_tag :div, class: "form-group" do %>
 		<%= f.hidden_field :current_cloud_account_id, value: @upload_file.cloud_account_id %>
 		<%= f.hidden_field :folder_path, value: @upload_file.dir_path %>
+    <%= f.hidden_field :folder_id, value: @cloud_file.id %>
 		<%= f.file_field :content, class: "form-control" %>
 		<%= f.collection_select(:cloud_account_id, current_user.cloud_accounts, :id, :provider, {}, {class: "form-control"}) %>
 		<%= f.submit("Upload!", class: "form-control btn-default") %>

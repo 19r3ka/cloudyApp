@@ -1,19 +1,18 @@
-
 <div class="row"> <!-- site navigation -->
 	<div class="col-md-12">
-		<ol class="breadcrumb"> 
+		<ol class="breadcrumb">
 			<li><%= link_to "All", user_cloud_accounts_path %></li>
 			<% if @cloud_file %>
-			  <li><%= link_to @cloud_file.provider, [current_user, @cloud_file.cloud_account] %></li> 
+			  <li><%= link_to @cloud_file.provider, [current_user, @cloud_file.cloud_account] %></li>
 			  <% levels = @cloud_file.path.split('/') %>
 			  <% path = "/" %>
 			  <% levels.each_with_index do |item, index| %>
 				<% next if item.blank? %>
-				<%  if index == levels.size - 1 %>
+				<% if index == levels.size - 1 %>
 				  <li><%= item %></li>
 				<% else %>
 				  <% path = File.join(path, item) %>
-				  <li><%= link_to item, [current_user, @cloud_file.cloud_account, file_path: path] %></li> 
+				  <li><%= link_to item, [current_user, @cloud_file.cloud_account, file_path: path] %></li>
 	            <% end %>
 	          <% end %>
 			<% end %>
@@ -39,7 +38,7 @@
 		<% end %>
 	  </ul>
 	</div>
-	
+
 	<div class="col-md-6"> <!-- csp tabs + files -->
 		<div class="row">
 			<div class="col-md-8">
@@ -50,22 +49,20 @@
 				<% end %>
 				<% current_user.cloud_accounts.each do |cloud_account| %>
 				  <%= content_tag :li do -%>
-					<%= link_to cloud_account.provider, user_cloud_accounts_path(current_user, cloud_account) %>  
+					<%= link_to cloud_account.provider.capitalize, [current_user, cloud_account] %>
 				  <% end %>
 				<% end %>
 			  <% end %>
 			</div>
-			
+
 			<div class="col-md-4"><!-- Dashboard CSP + Folder actions -->
 				<div class="cloud-ops btn-group">
-				<% if @cloud_file %>
-				  <%= link_to(url_for(controller: :cloud_accounts, action: 'upload', 
-				              caid: @cloud_file.cloud_account_id, file_path: @cloud_file.path)) do %>
+				<% if @cloud_file && @cloud_file.is_dir %>
+				  <%= link_to(upload_user_cloud_account_url(current_user, @cloud_file.cloud_account, params_for(@cloud_file))) do %>
 					<span class="glyphicon glyphicon-cloud-upload"></span>
 					Upload!
 				  <% end %>
-				  <%= link_to(url_for(controller: :cloud_accounts, action: 'create_folder', 
-				              file_path: @cloud_file.path)) do %>
+				  <%= link_to(create_folder_user_cloud_account_url(current_user, @cloud_file.cloud_account, params_for(@cloud_file))) do %>
 					<span class="glyphicon glyphicon-folder-open"></span>
 					New Folder
 				  <% end %>
@@ -73,7 +70,7 @@
 				</div>
 			</div>
 		</div>
-	
+
 		<div> <!-- file explorer -->
 		<% if !@cloud_files && !@cloud_file %>
 		  <%= render "dashboard/new_dashboard" %>
@@ -82,7 +79,7 @@
 		<% end %>
 		</div>
 	</div>
-	
+
 	<div class="col-md-4"> <!-- current file information -->
 	  <% if @cloud_file %>
 		<% if @cloud_file.is_embeddable? %>
@@ -90,7 +87,7 @@
 			  <%= build_tag(@cloud_file) %>
 			</div>
 		<% end %>
-		
+
 		<div class="file-info">
 		  <%= render @cloud_file %>
 		</div>

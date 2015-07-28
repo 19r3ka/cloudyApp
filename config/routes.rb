@@ -2,12 +2,12 @@ Rails.application.routes.draw do
 
   get 'password_resets/new'
   get 'password_resets/edit'
-  
+
   root 'pages#home'
-  
+
   get 'dashboard'                                        => 'dashboard#index'
-  get 'dashboard/cancel'                                 => 'cloud_accounts#cancel',             as: :cancel
-  
+  get 'dashboard/cancel'                                 => 'cloud_accounts#cancel',        as: :cancel
+
   post 'users/:user_id/cloud_accounts/search'            => 'cloud_accounts#search',        as: :search
   get 'users/:user_id/cloud_accounts/:id/download/'      => 'cloud_accounts#download',      as: :download
   get 'users/:user_id/cloud_accounts/:id/copy/'          => 'cloud_accounts#copy'
@@ -15,51 +15,59 @@ Rails.application.routes.draw do
   get 'users/:user_id/cloud_accounts/:id/rename/'        => 'cloud_accounts#rename'
   get 'users/:user_id/cloud_accounts/:id/move/'          => 'cloud_accounts#move'
   post 'users/:user_id/cloud_accounts/:id/move/'         => 'cloud_accounts#move',          as: :move
-  get 'users/:user_id/cloud_accounts/:id/delete/'        => 'cloud_accounts#delete'
+  get 'users/:user_id/cloud_accounts/:id/delete/'        => 'cloud_accounts#delete',        as: :delete_item
+  #delete 'users/:user_id/cloud_accounts/:id/'            => 'cloud_accounts#delete'
   get 'users/:user_id/cloud_accounts/upload'             => 'cloud_accounts#upload'
   post 'users/:user_id/cloud_accounts/upload/'           => 'cloud_accounts#upload',        as: :upload
   get 'users/:user_id/cloud_accounts/:id/create_folder'  => 'cloud_accounts#create_folder'
   post 'users/:user_id/cloud_accounts/:id/create_folder' => 'cloud_accounts#create_folder', as: :new_folder
   get 'users/:user_id/cloud_accounts/:id/'               => 'cloud_accounts#show'
-  
+
   get 'cloud_accounts' => 'cloud_accounts#index'
-  
+
   get 'help'     => 'pages#help'
   get 'about'    => 'pages#about'
   get 'contact'  => 'pages#contact'
-	
-  get 'signup'            => 'users#new'
-  get 'dropbox/get_token' => 'dropbox#get_token'
-  get 'dropbox/new'       => 'dropbox#new'
-  
-  get 'cloud_accounts/create' => 'cloud_accounts#create'
-  	
+
+  get 'signup'        => 'users#new'
+
+  get 'dropbox/new'   => 'dropbox#new'
+  get 'box/new'       => 'box#new'
+
+  get 'cloud_accounts/create' => 'cloud_accounts#create', as: :create_cloud_accounts
+
   get 'login'    => 'sessions#new'
   post 'login'   => 'sessions#create'
   delete 'logout'=> 'sessions#destroy'
 
   resources :cloud_apis
-  
+
   resources :users do
-    resources :cloud_accounts do 
-      member do 
-        get 'download', 'upload', 'rename', 'copy', 'move'
+    resources :cloud_accounts do
+      member do
+        get 'download', 'upload', 'rename', 'copy', 'move', 'create_folder'
+        post 'rename'
       end
     end
   end
-	
+
   resource :dropbox, controller: 'dropbox' do
     member do
-	  get 'get_token'
-	end
+      get 'get_token'
+	  end
   end
-	
+  resource :box, controller: 'box' do
+    member do
+      get 'get_token'
+	  end
+  end
+
   resources :account_activations, only: [:edit]
   resources :password_resets, only: [:new, :create, :edit, :update]
   resources :dashboard, controller: 'dashboard', only: [:index]
-	
 
-	
+
+
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
