@@ -186,7 +186,7 @@ class Box < ActiveRecord::Base
 
   # Adds access_token to the header of the connexion
   def sign_connexion(connexion)
-    connexion.authorization("Bearer", self.access_token)
+    connexion.authorization("Bearer", @access_token)
   end
 
   # Get id from the path from the filetree
@@ -216,9 +216,9 @@ class Box < ActiveRecord::Base
   # Returns new access_token and refresh_token
   def self.refresh_access
     connexion = client(OTOKEN_URL)
-    response  = connexion.post "",
-      refresh_token:  self.refresh_token,
-	    redirect_uri:   CALLBACK_URL,
+    Logger.new(STDOUT).debug("the refresh token is #{@refresh_token}")
+    response       = connexion.post "",
+      refresh_token:  @refresh_token,
       grant_type:     :refresh_token,
 	    client_id:      ENV['BOX_KEY'],
 	    client_secret:  ENV['BOX_SECRET']
@@ -237,9 +237,9 @@ class Box < ActiveRecord::Base
       when 302
 
       when 401
-        refresh_access
+      raise HttpErrors::AuthError.new(status, response.body)
       else
-        raise "#{status} -> #{response.body}"
+      raise HttpErrors::CloudError.new(status, response.body)
     end
   end
 
@@ -248,10 +248,16 @@ class Box < ActiveRecord::Base
   def self.format_response(response)
     if response.is_a? Faraday::Response
       begin
+        attempt = 0
         response = handle_response(response)
-      rescue => e
-        logger.warn "An error occured: #{e}"
-        nil
+      rescue HttpErrors::AuthError => e
+        Rails.logger.error "#{e.http_status}, #{e.error_message}"
+        Box.refresh_access
+        attempt += 1
+        retry if attempt <= 1
+        nil if attempt > 2
+      rescue HttpErrors::CloudError => e
+        Rails.logger.error "#{e.http_status}, #{e.error_message}"
       end
     end
     if response.is_a? Array

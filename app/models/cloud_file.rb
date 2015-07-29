@@ -134,7 +134,8 @@ class CloudFile
 
   # Instantiate the csp API associated with the file's cloud account
   def cloud_api
-    self.provider.camelize.constantize.new(access_token: self.cloud_account.access_token)
+    @provider.camelize.constantize.new(access_token: cloud_account.access_token,
+                                      refresh_token: cloud_account.refresh_token)
   end
 
   # Returns an array containing the main actions on files
